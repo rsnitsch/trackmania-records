@@ -1,0 +1,9 @@
+version: "3"
+services:
+  webserver:
+    image: php:7.4-apache
+    volumes:
+        - ./html/:/var/www/html
+    ports:
+      - "127.0.0.1:8080:80"
+    restart: unless-stopped

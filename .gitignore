@@ -1,0 +1,5 @@
+server/html/database.db
+client/Pipfile.lock
+client/build/
+client/dist/
+client/src/upload_tm_records.egg-info/
