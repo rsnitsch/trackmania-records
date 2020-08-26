@@ -13,10 +13,11 @@
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 		$commands = ['CREATE TABLE IF NOT EXISTS records (
+						game         TEXT NOT NULL,
 						user         TEXT NOT NULL,
 						track        TEXT NOT NULL,
 						best         INTEGER NOT NULL,
-						PRIMARY KEY (user, track)
+						PRIMARY KEY (game, user, track)
 					  )'];
 
 		foreach ($commands as $command) {
@@ -37,7 +38,7 @@
 			$st->execute();
 
 			// Add new record.
-			$st = $pdo->prepare('INSERT INTO records (user, track, best) VALUES (:user, :track, :best)');
+			$st = $pdo->prepare("INSERT INTO records (game, user, track, best) VALUES ('Trackmania 2020', :user, :track, :best)");
 			$st->bindParam(':user', $user, PDO::PARAM_STR);
 			$st->bindParam(':track', $track, PDO::PARAM_STR);
 			$st->bindParam(':best', $best, PDO::PARAM_INT);
