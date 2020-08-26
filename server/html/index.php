@@ -64,12 +64,22 @@
 					$pdo = new \PDO("sqlite:database.db");
 					$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-					$results = $pdo->query("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records GROUP BY user ORDER BY count DESC, total_time ASC");
+					$results = $pdo->query("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records GROUP BY user HAVING count = 25 ORDER BY count DESC, total_time ASC");
 					while ($row = $results->fetch()) {
 						//print_r($row);
 ?>			<tr>
 				<td><?php echo $row['user']; ?></td>
-				<td><?php if ($row['count'] == 25) { echo htmlspecialchars($row['total_time'] / 1000.0); } else { echo "&#8734;"; } ?>s</td>
+				<td><?php echo htmlspecialchars($row['total_time'] / 1000.0); ?>s</td>
+			</tr>
+<?php
+					}
+
+					$results = $pdo->query("SELECT user, COUNT(track) AS count FROM records GROUP BY user HAVING count < 25 ORDER BY user");
+					while ($row = $results->fetch()) {
+						//print_r($row);
+?>			<tr>
+				<td><?php echo $row['user']; ?></td>
+				<td>&#8734;s</td>
 			</tr>
 <?php
 					}
