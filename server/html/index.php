@@ -23,13 +23,14 @@
 					$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 					for ($i = 1; $i <= 25; $i++) {
+						$track = sprintf("Training - %02d", $i);
 						$st = $pdo->prepare("SELECT * FROM records WHERE track = :track ORDER BY best ASC LIMIT 1");
-						$st->bindParam(':track', sprintf("Training - %02d", $i), PDO::PARAM_STR);
+						$st->bindParam(':track', $track, PDO::PARAM_STR);
 						$st->execute();
 						$row = $st->fetch();
 						//print_r($row);
 ?>			<tr>
-				<td><?php echo $i; ?></td>
+				<td><?php echo $track; ?></td>
 				<td><?php echo htmlspecialchars($row['best'] / 1000.0); ?>s</td>
 				<td><?php echo htmlspecialchars($row['user']); ?></td>
 			</tr>
