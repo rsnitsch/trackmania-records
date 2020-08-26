@@ -46,23 +46,28 @@ def main():
         sys.exit(1)
 
     logger.info('Replay directory found at: %s', replay_directory)
-    training_autosave_regexp = re.compile(r'^(.*)_Training - ([0-9]+)_PersonalBest_TimeAttack\.Replay\.Gbx$')
+    training_autosave_regexp = re.compile(r'^(.*)_(Training - [0-9]+)_PersonalBest_TimeAttack\.Replay\.Gbx$')
     replay_files = []
     for item in os.listdir(replay_directory):
         match = training_autosave_regexp.search(item)
         if match:
-            replay_files.append((match.group(1), int(match.group(2).lstrip('0')), os.path.join(replay_directory, item)))
+            replay_files.append((match.group(1), match.group(2), os.path.join(replay_directory, item)))
 
     records = []
-    for user, track_number, replay_file in replay_files:
+    for user, track, replay_file in replay_files:
         logger.debug('Processing file "%s"...', replay_file)
         best = extract_record_from_gbx_file(replay_file)
-        logger.info('Record for track %d: %.3fs', track_number, best / 1000.0)
-        records.append({'track': track_number, 'user': user, 'best': best})
+        logger.info("Record for track '%s': %.3fs", track, best / 1000.0)
+        records.append({'track': track, 'user': user, 'best': best})
 
     logger.info("Uploading records...")
     try:
-        r = requests.post(args.server, data={'records': json.dumps(records)})
+        r = requests.post(args.server,
+                          data={
+                              'records': json.dumps(records),
+                              'client_name': 'upload_tm_records',
+                              'client_version': __version__
+                          })
         logger.debug('Server returned:\n%s', r.text)
         logger.info("DONE!")
     except Exception as e:
