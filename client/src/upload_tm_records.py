@@ -8,9 +8,30 @@ import sys
 
 import requests
 
-__version__ = '1.0.0.dev1'
+__version__ = '1.0.0.dev2'
 
 logger = logging.getLogger(__name__)
+
+
+def get_replay_directory():
+    replay_directory = os.path.expanduser(r'~\Documents\Trackmania\Replays\Autosaves')
+    if os.path.isdir(replay_directory):
+        return replay_directory
+    else:
+        logging.warning("Replay directory was not found at expected location: %s.", replay_directory)
+        logging.warning("Will try to use the Windows API workaround for finding the directory...")
+
+    import ctypes.wintypes
+    CSIDL_PERSONAL = 5  # My Documents
+    SHGFP_TYPE_CURRENT = 0  # Get current value (instead of default value)
+
+    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+    ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+    replay_directory = buf.value + r"\Trackmania\Replays\Autosaves"
+    if os.path.isdir(replay_directory):
+        return replay_directory
+
+    return None
 
 
 def extract_record_from_gbx_file(path):
@@ -40,31 +61,38 @@ def main():
         logger.error("Invalid server URL. Must start with http:// or https://")
         sys.exit(1)
 
-    replay_directory = os.path.expanduser(r'~\Documents\Trackmania\Replays\Autosaves')
-    if not os.path.isdir(replay_directory):
-        logger.error("Replay directory does not exist on your system. Expected location: %s", replay_directory)
+    replay_directory = get_replay_directory()
+    if not replay_directory:
+        logging.error("Replay directory could not be found... aborting.")
         sys.exit(1)
 
     logger.info('Replay directory found at: %s', replay_directory)
-    training_autosave_regexp = re.compile(r'^(.*)_Training - ([0-9]+)_PersonalBest_TimeAttack\.Replay\.Gbx$')
+    training_autosave_regexp = re.compile(r'^(.*)_(Training - [0-9]+)_PersonalBest_TimeAttack\.Replay\.Gbx$')
     replay_files = []
     for item in os.listdir(replay_directory):
         match = training_autosave_regexp.search(item)
         if match:
-            replay_files.append((match.group(1), int(match.group(2).lstrip('0')), os.path.join(replay_directory, item)))
+            replay_files.append((match.group(1), match.group(2), os.path.join(replay_directory, item)))
 
     records = []
-    for user, track_number, replay_file in replay_files:
+    for user, track, replay_file in replay_files:
         logger.debug('Processing file "%s"...', replay_file)
         best = extract_record_from_gbx_file(replay_file)
-        logger.info('Record for track %d: %.3fs', track_number, best / 1000.0)
-        records.append({'track': track_number, 'user': user, 'best': best})
+        logger.info("Record for track '%s': %.3fs", track, best / 1000.0)
+        records.append({'track': track, 'user': user, 'best': best})
 
     logger.info("Uploading records...")
     try:
-        r = requests.post(args.server, data={'records': json.dumps(records)})
-        logger.debug('Server returned:\n%s', r.text)
-        logger.info("DONE!")
+        r = requests.post(args.server,
+                          data={
+                              'records': json.dumps(records),
+                              'client_name': 'upload_tm_records',
+                              'client_version': __version__
+                          })
+        if r.status_code == 200:
+            logger.info("SUCCESS!")
+        else:
+            logger.error("FAILED! Status code: %d. Server response: %s.", r.status_code, r.text)
     except Exception as e:
         logger.error("Could not upload to server. Reason: %s", e)
 

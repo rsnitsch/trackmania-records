@@ -1,6 +1,23 @@
 <?php
 	if (!isset($_POST['records'])) {
-		die("No data");
+		http_response_code(400);
+		die("No records");
+	}
+
+	if (!isset($_POST['client_name'])) {
+		http_response_code(400);
+		die("No client_name");
+	}
+
+	if (!isset($_POST['client_version'])) {
+		http_response_code(400);
+		die("No client_version");
+	}
+
+	define('REQUIRED_CLIENT_VERSION', '1.0.0.dev2');
+	if ($_POST['client_version'] !== REQUIRED_CLIENT_VERSION) {
+		http_response_code(400);
+		die("Your client is outdated. Please use version ".REQUIRED_CLIENT_VERSION);
 	}
 
 	//file_put_contents('debug.log', print_r($_POST, true));
@@ -13,10 +30,11 @@
 		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 		$commands = ['CREATE TABLE IF NOT EXISTS records (
+						game         TEXT NOT NULL,
 						user         TEXT NOT NULL,
 						track        TEXT NOT NULL,
 						best         INTEGER NOT NULL,
-						PRIMARY KEY (user, track)
+						PRIMARY KEY (game, user, track)
 					  )'];
 
 		foreach ($commands as $command) {
@@ -37,7 +55,7 @@
 			$st->execute();
 
 			// Add new record.
-			$st = $pdo->prepare('INSERT INTO records (user, track, best) VALUES (:user, :track, :best)');
+			$st = $pdo->prepare("INSERT INTO records (game, user, track, best) VALUES ('Trackmania 2020', :user, :track, :best)");
 			$st->bindParam(':user', $user, PDO::PARAM_STR);
 			$st->bindParam(':track', $track, PDO::PARAM_STR);
 			$st->bindParam(':best', $best, PDO::PARAM_INT);
