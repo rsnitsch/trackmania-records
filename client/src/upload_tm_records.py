@@ -13,6 +13,27 @@ __version__ = '1.0.0.dev1'
 logger = logging.getLogger(__name__)
 
 
+def get_replay_directory():
+    replay_directory = os.path.expanduser(r'~\Documents\Trackmania\Replays\Autosaves')
+    if os.path.isdir(replay_directory):
+        return replay_directory
+    else:
+        logging.warning("Replay directory was not found at expected location: %s.", replay_directory)
+        logging.warning("Will try to use the Windows API workaround for finding the directory...")
+
+    import ctypes.wintypes
+    CSIDL_PERSONAL = 5  # My Documents
+    SHGFP_TYPE_CURRENT = 0  # Get current value (instead of default value)
+
+    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+    ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+    replay_directory = buf.value + r"\Trackmania\Replays\Autosaves"
+    if os.path.isdir(replay_directory):
+        return replay_directory
+
+    return None
+
+
 def extract_record_from_gbx_file(path):
     best_regexp = re.compile(b'<times best="([0-9]+)"')
     with open(path, 'rb') as fh:
@@ -40,9 +61,9 @@ def main():
         logger.error("Invalid server URL. Must start with http:// or https://")
         sys.exit(1)
 
-    replay_directory = os.path.expanduser(r'~\Documents\Trackmania\Replays\Autosaves')
-    if not os.path.isdir(replay_directory):
-        logger.error("Replay directory does not exist on your system. Expected location: %s", replay_directory)
+    replay_directory = get_replay_directory()
+    if not replay_directory:
+        logging.error("Replay directory could not be found... aborting.")
         sys.exit(1)
 
     logger.info('Replay directory found at: %s', replay_directory)
