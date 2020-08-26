@@ -66,7 +66,7 @@
 						$bestTime = $bestTimes[0]['best'];
 
 						// Get users that have driven this time.
-						$st = $pdo->prepare("SELECT user FROM records WHERE track = :track AND best = :best ORDER BY user");
+						$st = $pdo->prepare("SELECT user FROM records WHERE track = :track AND best = :best ORDER BY LOWER(user)");
 						$st->bindParam(':track', $track, PDO::PARAM_STR);
 						$st->bindParam(':best', $bestTime, PDO::PARAM_INT);
 						$st->execute();
@@ -123,7 +123,7 @@
 <?php
 					}
 
-					$results = $pdo->query("SELECT user, COUNT(track) AS count FROM records GROUP BY user HAVING count < 25 ORDER BY user");
+					$results = $pdo->query("SELECT user, COUNT(track) AS count FROM records GROUP BY user HAVING count < 25 ORDER BY LOWER(user)");
 					while ($row = $results->fetch()) {
 						//print_r($row);
 ?>			<tr>
