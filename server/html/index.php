@@ -32,7 +32,7 @@
 						$row = $st->fetch();
 						$best = $row['best'];
 
-						$st = $pdo->prepare("SELECT user FROM records WHERE track = :track AND best = :best");
+						$st = $pdo->prepare("SELECT user FROM records WHERE track = :track AND best = :best ORDER BY user");
 						$st->bindParam(':track', $track, PDO::PARAM_STR);
 						$st->bindParam(':best', $best, PDO::PARAM_INT);
 						$st->execute();
