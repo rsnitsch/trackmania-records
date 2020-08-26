@@ -14,19 +14,44 @@ logger = logging.getLogger(__name__)
 
 
 def get_replay_directory():
+    """
+    Return the Trackmania 2020 Autosaves replay directory.
+    
+    Note:
+        In some cases, Trackmania 2020 uses the Documents\Trackmania2020 subfolder. Sometimes,
+        it uses the Documents\Trackmania subfolder (without any 2020 indication).
+
+        I assume that it uses Trackmania2020 if another (older) Trackmania version is
+        installed on the system. Therefore, it seems prudent to try the Trackmania2020 subfolder
+        first and use the Trackmania subfolder as a fallback.
+    """
+    replay_directory = os.path.expanduser(r'~\Documents\Trackmania2020\Replays\Autosaves')
+    if os.path.isdir(replay_directory):
+        return replay_directory
+    else:
+        logging.warning("Replay directory was not found at expected location: %s.", replay_directory)
+
     replay_directory = os.path.expanduser(r'~\Documents\Trackmania\Replays\Autosaves')
     if os.path.isdir(replay_directory):
         return replay_directory
     else:
         logging.warning("Replay directory was not found at expected location: %s.", replay_directory)
-        logging.warning("Will try to use the Windows API workaround for finding the directory...")
+        logging.warning("Will now try to use the Windows API workaround for finding the directory...")
 
+    # Windows allows to change the location of the Documents folder, e.g. to move
+    # it to a separate harddrive or a network drive. In this case, the above code must fail. Instead,
+    # we have to ask the Windows API for the location of the Documents folder.
     import ctypes.wintypes
     CSIDL_PERSONAL = 5  # My Documents
     SHGFP_TYPE_CURRENT = 0  # Get current value (instead of default value)
 
     buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
     ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+
+    replay_directory = buf.value + r"\Trackmania2020\Replays\Autosaves"
+    if os.path.isdir(replay_directory):
+        return replay_directory
+
     replay_directory = buf.value + r"\Trackmania\Replays\Autosaves"
     if os.path.isdir(replay_directory):
         return replay_directory
