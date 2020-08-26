@@ -8,7 +8,7 @@ import sys
 
 import requests
 
-__version__ = '1.0.0.dev2'
+__version__ = '1.0.0.dev3'
 
 logger = logging.getLogger(__name__)
 
