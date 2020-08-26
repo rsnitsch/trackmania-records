@@ -1,4 +1,5 @@
 <?php
+	header("Content-Security-Policy: default-src 'self'");
 	$selectedUser = isset($_GET['user']) ? $_GET['user'] : null;
 
 	// Returns the best time of the specified user along with the rank that this time
