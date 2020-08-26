@@ -1,6 +1,23 @@
 <?php
 	if (!isset($_POST['records'])) {
-		die("No data");
+		http_response_code(400);
+		die("No records");
+	}
+
+	if (!isset($_POST['client_name'])) {
+		http_response_code(400);
+		die("No client_name");
+	}
+
+	if (!isset($_POST['client_version'])) {
+		http_response_code(400);
+		die("No client_version");
+	}
+
+	define('REQUIRED_CLIENT_VERSION', '1.0.0.dev1');
+	if ($_POST['client_version'] !== REQUIRED_CLIENT_VERSION) {
+		http_response_code(400);
+		die("Your client is outdated. Please use version ".REQUIRED_CLIENT_VERSION);
 	}
 
 	//file_put_contents('debug.log', print_r($_POST, true));
