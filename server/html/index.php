@@ -24,15 +24,24 @@
 
 					for ($i = 1; $i <= 25; $i++) {
 						$track = sprintf("Training - %02d", $i);
-						$st = $pdo->prepare("SELECT * FROM records WHERE track = :track ORDER BY best ASC LIMIT 1");
+
+						// Determine best time for track.
+						$st = $pdo->prepare("SELECT best FROM records WHERE track = :track ORDER BY best ASC LIMIT 1");
 						$st->bindParam(':track', $track, PDO::PARAM_STR);
 						$st->execute();
 						$row = $st->fetch();
-						//print_r($row);
+						$best = $row['best'];
+
+						$st = $pdo->prepare("SELECT user FROM records WHERE track = :track AND best = :best");
+						$st->bindParam(':track', $track, PDO::PARAM_STR);
+						$st->bindParam(':best', $best, PDO::PARAM_INT);
+						$st->execute();
+						$users = $st->fetchAll(PDO::FETCH_COLUMN, 0);
+						//print_r($users);
 ?>			<tr>
 				<td><?php echo $track; ?></td>
-				<td><?php echo htmlspecialchars($row['best'] / 1000.0); ?>s</td>
-				<td><?php echo htmlspecialchars($row['user']); ?></td>
+				<td><?php echo htmlspecialchars($best / 1000.0); ?>s</td>
+				<td><?php echo htmlspecialchars(implode(',', $users)); ?></td>
 			</tr>
 <?php
 					}
