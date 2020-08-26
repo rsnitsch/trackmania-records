@@ -68,8 +68,10 @@ def main():
                               'client_name': 'upload_tm_records',
                               'client_version': __version__
                           })
-        logger.debug('Server returned:\n%s', r.text)
-        logger.info("DONE!")
+        if r.status_code == 200:
+            logger.info("SUCCESS!")
+        else:
+            logger.error("FAILED! Status code: %d. Server response: %s.", r.status_code, r.text)
     except Exception as e:
         logger.error("Could not upload to server. Reason: %s", e)
 
