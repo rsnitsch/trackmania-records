@@ -1,4 +1,6 @@
 <?php
+	// TODO: Improve generation of upload.php URL (currently it just uses hostname + "/upload.php")
+
 	header("Content-Security-Policy: default-src 'self'");
 	$selectedUser = isset($_GET['user']) ? $_GET['user'] : null;
 
@@ -144,7 +146,7 @@
 			<li>Install the upload script by executing this command:<br>
 				<span class="text-monospace">pip3 install --upgrade upload-tm-records</span></li>
 			<li>Now you can always run the following command to upload your latest records to this server:<br>
-				<span class="text-monospace">upload-tm-records.exe <?php echo htmlspecialchars($_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])."upload.php"; ?></span></li>
+				<span class="text-monospace">upload-tm-records.exe <?php echo htmlspecialchars($_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST']."/upload.php"); ?></span></li>
 		</ul>
 	</div>
 </body>
