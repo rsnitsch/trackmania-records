@@ -36,7 +36,7 @@
 <?php
 					}
 				} catch (PDOException $e) {
-					die('Database error: '.htmlspecialchars($e->getMessage()));
+					echo 'Database error: '.htmlspecialchars($e->getMessage());
 				}
 			?>
 		</table>
