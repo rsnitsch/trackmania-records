@@ -57,7 +57,7 @@
 			<li>Download Python 3 from python.org and install it: <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a></li>
 			<li>Open a shell/terminal window (cmd.exe or PowerShell)</li>
 			<li>Install the upload script by executing this command:<br>
-				<span class="text-monospace">pip3 install upload-tm-records</span></li>
+				<span class="text-monospace">pip3 install --upgrade upload-tm-records</span></li>
 			<li>Now you can always run the following command to upload your latest records to this server:<br>
 				<span class="text-monospace">upload-tm-records.exe <?php echo htmlspecialchars($_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])."upload.php"; ?></span></li>
 		</ul>
