@@ -75,7 +75,7 @@
 ?>			<tr>
 				<td><?php echo $track; ?></td>
 				<td><?php echo htmlspecialchars($bestTime / 1000.0); ?>s</td>
-				<td><?php echo htmlspecialchars(implode(',', $users)); ?></td>
+				<td><?php echo htmlspecialchars(implode(', ', $users)); ?></td>
 <?php
 					if ($selectedUser) {
 						$bestTimeByUser = get_best_time_by_user($bestTimes, $selectedUser);
