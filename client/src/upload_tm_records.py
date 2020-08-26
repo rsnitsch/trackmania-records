@@ -8,7 +8,7 @@ import sys
 
 import requests
 
-__version__ = '1.0.0.dev2'
+__version__ = '1.0.0.dev3'
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +50,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('server')
+    parser.add_argument('--replay-directory', type=str, default=None)
     args = parser.parse_args()
 
     logger.debug("System: %s" % platform.system())
@@ -61,12 +62,22 @@ def main():
         logger.error("Invalid server URL. Must start with http:// or https://")
         sys.exit(1)
 
-    replay_directory = get_replay_directory()
-    if not replay_directory:
-        logging.error("Replay directory could not be found... aborting.")
-        sys.exit(1)
+    if args.replay_directory:
+        replay_directory = args.replay_directory
+        if not os.path.isdir(replay_directory):
+            logging.error("The replay directory you specified does not exist: %s", replay_directory)
+            sys.exit(1)
+        else:
+            logging.info("Using user-specified replay directory at: %s", replay_directory)
+    else:
+        replay_directory = get_replay_directory()
+        if not replay_directory:
+            logging.error(
+                "Replay directory could not be found... aborting. You can specify it manually with --replay-directory")
+            sys.exit(1)
+        else:
+            logger.info('Replay directory found at: %s', replay_directory)
 
-    logger.info('Replay directory found at: %s', replay_directory)
     training_autosave_regexp = re.compile(r'^(.*)_(Training - [0-9]+)_PersonalBest_TimeAttack\.Replay\.Gbx$')
     replay_files = []
     for item in os.listdir(replay_directory):

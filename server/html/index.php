@@ -24,15 +24,24 @@
 
 					for ($i = 1; $i <= 25; $i++) {
 						$track = sprintf("Training - %02d", $i);
-						$st = $pdo->prepare("SELECT * FROM records WHERE track = :track ORDER BY best ASC LIMIT 1");
+
+						// Determine best time for track.
+						$st = $pdo->prepare("SELECT best FROM records WHERE track = :track ORDER BY best ASC LIMIT 1");
 						$st->bindParam(':track', $track, PDO::PARAM_STR);
 						$st->execute();
 						$row = $st->fetch();
-						//print_r($row);
+						$best = $row['best'];
+
+						$st = $pdo->prepare("SELECT user FROM records WHERE track = :track AND best = :best");
+						$st->bindParam(':track', $track, PDO::PARAM_STR);
+						$st->bindParam(':best', $best, PDO::PARAM_INT);
+						$st->execute();
+						$users = $st->fetchAll(PDO::FETCH_COLUMN, 0);
+						//print_r($users);
 ?>			<tr>
 				<td><?php echo $track; ?></td>
-				<td><?php echo htmlspecialchars($row['best'] / 1000.0); ?>s</td>
-				<td><?php echo htmlspecialchars($row['user']); ?></td>
+				<td><?php echo htmlspecialchars($best / 1000.0); ?>s</td>
+				<td><?php echo htmlspecialchars(implode(',', $users)); ?></td>
 			</tr>
 <?php
 					}
@@ -48,7 +57,7 @@
 			<li>Download Python 3 from python.org and install it: <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a></li>
 			<li>Open a shell/terminal window (cmd.exe or PowerShell)</li>
 			<li>Install the upload script by executing this command:<br>
-				<span class="text-monospace">pip3 install upload-tm-records</span></li>
+				<span class="text-monospace">pip3 install --upgrade upload-tm-records</span></li>
 			<li>Now you can always run the following command to upload your latest records to this server:<br>
 				<span class="text-monospace">upload-tm-records.exe <?php echo htmlspecialchars($_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])."upload.php"; ?></span></li>
 		</ul>
