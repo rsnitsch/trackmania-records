@@ -24,7 +24,7 @@
 
 					for ($i = 1; $i <= 25; $i++) {
 						$st = $pdo->prepare("SELECT * FROM records WHERE track = :track ORDER BY best ASC LIMIT 1");
-						$st->bindParam(':track', strval($i), PDO::PARAM_STR);
+						$st->bindParam(':track', sprintf("Training - %02d", $i), PDO::PARAM_STR);
 						$st->execute();
 						$row = $st->fetch();
 						//print_r($row);
