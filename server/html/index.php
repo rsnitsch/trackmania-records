@@ -32,6 +32,7 @@
 						$row = $st->fetch();
 						$best = $row['best'];
 
+						// Get users that have driven this time.
 						$st = $pdo->prepare("SELECT user FROM records WHERE track = :track AND best = :best ORDER BY user");
 						$st->bindParam(':track', $track, PDO::PARAM_STR);
 						$st->bindParam(':best', $best, PDO::PARAM_INT);
@@ -42,6 +43,33 @@
 				<td><?php echo $track; ?></td>
 				<td><?php echo htmlspecialchars($best / 1000.0); ?>s</td>
 				<td><?php echo htmlspecialchars(implode(',', $users)); ?></td>
+			</tr>
+<?php
+					}
+				} catch (PDOException $e) {
+					echo 'Database error: '.htmlspecialchars($e->getMessage());
+				}
+			?>
+		</table>
+
+		<h2>Total time per user</h2>
+
+		<table class="table table-striped table-hover table-sm">
+			<tr>
+				<th scope="col">User</th>
+				<th scope="col">Total time</th>
+			</tr>
+			<?php
+				try {
+					$pdo = new \PDO("sqlite:database.db");
+					$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+					$results = $pdo->query("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records GROUP BY user ORDER BY count DESC, total_time ASC");
+					while ($row = $results->fetch()) {
+						//print_r($row);
+?>			<tr>
+				<td><?php echo $row['user']; ?></td>
+				<td><?php if ($row['count'] == 25) { echo htmlspecialchars($row['total_time'] / 1000.0); } else { echo "&#8734;"; } ?>s</td>
 			</tr>
 <?php
 					}
