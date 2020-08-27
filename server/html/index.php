@@ -32,7 +32,7 @@
 		}
 
 		echo "		<h2>".htmlspecialchars($trackSet)." - Records</h2>";
-		?>
+?>
 
 		<table class="table table-striped table-hover table-sm">
 			<tr>
@@ -72,7 +72,23 @@
 						$st->execute();
 						$users = $st->fetchAll(PDO::FETCH_COLUMN, 0);
 						//print_r($users);
-?>			<tr>
+						
+						if ($trackSet == "Summer 2020") {
+							if ($i <= 5) {
+								$tableColorClass = " class='table-light'";
+							} else if ($i <= 10) {
+								$tableColorClass = " class='table-success'";
+							} else if ($i <= 15) {
+								$tableColorClass = " class='table-primary'";
+							} else if ($i <= 20) {
+								$tableColorClass = " class='table-danger'";
+							} else if ($i <= 25) {
+								$tableColorClass = " class='table-secondary'";
+							}
+						} else {
+							$tableColorClass = "";
+						}
+?>			<tr<?php echo $tableColorClass; ?>>
 				<td><?php echo $track; ?></td>
 				<td><?php echo htmlspecialchars($bestTime / 1000.0); ?>s</td>
 				<td><?php echo htmlspecialchars(implode(', ', $users)); ?></td>
@@ -91,14 +107,14 @@
 							echo "				<td>-</td>\n";
 						}
 					}
-				?>
+?>
 			</tr>
 <?php
 					}
 				} catch (PDOException $e) {
 					echo 'Database error: '.htmlspecialchars($e->getMessage());
 				}
-			?>
+?>
 		</table>
 
 <?php echo "		<h3>".htmlspecialchars($trackSet)." - Total time per user</h3>"; ?>
