@@ -6,7 +6,7 @@
 
 	// Returns the best time of the specified user along with the rank that this time
 	// results in compared to the times by other users.
-	function get_best_time_by_user($bestTimes, $user) {
+	function getBestTimeByUser($bestTimes, $user) {
 		$rank = 1;
 		for ($i = 0; $i < count($bestTimes); $i++) {
 			$bestTime = $bestTimes[$i];
@@ -21,17 +21,17 @@
 
 		return null;
 	}
-	
-	function table_for_track_set($track_set, $selectedUser) {
-		if ($track_set == "Training")
+
+	function tableForTrackSet($trackSet, $selectedUser) {
+		if ($trackSet == "Training")
 			$count = 25;
-		else if ($track_set == "Summer 2020") {
+		else if ($trackSet == "Summer 2020") {
 			$count = 25;
 		} else {
 			throw Exception("Unknown track set");
 		}
-		
-		echo "		<h2>".htmlspecialchars($track_set)." - Records</h2>";
+
+		echo "		<h2>".htmlspecialchars($trackSet)." - Records</h2>";
 		?>
 
 		<table class="table table-striped table-hover table-sm">
@@ -55,7 +55,7 @@
 
 					
 					for ($i = 1; $i <= 25; $i++) {
-						$track = sprintf("$track_set - %02d", $i);
+						$track = sprintf("$trackSet - %02d", $i);
 
 						// Determine best time for track.
 						$st = $pdo->prepare("SELECT user, best FROM records WHERE track = :track ORDER BY best ASC");
@@ -78,7 +78,7 @@
 				<td><?php echo htmlspecialchars(implode(', ', $users)); ?></td>
 <?php
 					if ($selectedUser) {
-						$bestTimeByUser = get_best_time_by_user($bestTimes, $selectedUser);
+						$bestTimeByUser = getBestTimeByUser($bestTimes, $selectedUser);
 						if ($bestTimeByUser) {
 							echo "				<td>".($bestTimeByUser[0] / 1000.0)."s</td>\n";
 							echo "				<td>".sprintf("%.3f", $bestTimeByUser[0] / 1000.0 - $bestTime / 1000.0)."s</td>\n";
@@ -101,7 +101,7 @@
 			?>
 		</table>
 
-<?php echo "		<h3>".htmlspecialchars($track_set)." - Total time per user</h3>"; ?>
+<?php echo "		<h3>".htmlspecialchars($trackSet)." - Total time per user</h3>"; ?>
 
 		<table class="table table-striped table-hover table-sm">
 			<tr>
@@ -114,7 +114,7 @@
 					$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 					$st = $pdo->prepare("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records WHERE track LIKE :track_set GROUP BY user HAVING count = 25 ORDER BY count DESC, total_time ASC");
-					$st->bindValue('track_set', addcslashes("$track_set", "?%")."%", PDO::PARAM_STR);
+					$st->bindValue('track_set', addcslashes("$trackSet", "?%")."%", PDO::PARAM_STR);
 					$st->execute();
 					while ($row = $st->fetch()) {
 						//print_r($row);
@@ -154,8 +154,8 @@
 	<div class="container">
 		<h1>Trackmania Records</h1>
 
-<?php table_for_track_set("Training", $selectedUser); ?>
-<?php table_for_track_set("Summer 2020", $selectedUser); ?>
+<?php tableForTrackSet("Training", $selectedUser); ?>
+<?php tableForTrackSet("Summer 2020", $selectedUser); ?>
 
 		<h2>Upload instructions</h2>
 
