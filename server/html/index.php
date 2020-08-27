@@ -1,4 +1,147 @@
-<!doctype html>
+<?php
+	// TODO: Improve generation of upload.php URL (currently it just uses hostname + "/upload.php")
+
+	header("Content-Security-Policy: default-src 'self'");
+	$selectedUser = isset($_GET['user']) ? $_GET['user'] : null;
+
+	// Returns the best time of the specified user along with the rank that this time
+	// results in compared to the times by other users.
+	function get_best_time_by_user($bestTimes, $user) {
+		$rank = 1;
+		for ($i = 0; $i < count($bestTimes); $i++) {
+			$bestTime = $bestTimes[$i];
+			if ($bestTime['user'] == $user) {
+				return array($bestTime['best'], $rank);
+			}
+
+			if ($i < (count($bestTimes) - 1) && $bestTimes[$i+1]['best'] > $bestTime['best']) {
+				$rank++;
+			}
+		}
+
+		return null;
+	}
+	
+	function table_for_track_set($track_set, $selectedUser) {
+		if ($track_set == "Training")
+			$count = 25;
+		else if ($track_set == "Summer 2020") {
+			$count = 25;
+		} else {
+			throw Exception("Unknown track set");
+		}
+		
+		echo "		<h2>".htmlspecialchars($track_set)." - Records</h2>";
+		?>
+
+		<table class="table table-striped table-hover table-sm">
+			<tr>
+				<th scope="col">Track</th>
+				<th scope="col">Best time</th>
+				<th scope="col">Driven by</th>
+<?php
+					if ($selectedUser) {
+						echo "				<th scope=\"col\">".htmlspecialchars($selectedUser)."'s time</th>\n";
+						echo "				<th scope=\"col\">Absolute delta</th>\n";
+						echo "				<th scope=\"col\">Relative delta (%)</th>\n";
+						echo "				<th scope=\"col\">".htmlspecialchars($selectedUser)."'s rank</th>\n";
+					}
+?>
+			</tr>
+<?php
+				try {
+					$pdo = new \PDO("sqlite:database.db");
+					$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+					
+					for ($i = 1; $i <= 25; $i++) {
+						$track = sprintf("$track_set - %02d", $i);
+
+						// Determine best time for track.
+						$st = $pdo->prepare("SELECT user, best FROM records WHERE track = :track ORDER BY best ASC");
+						$st->bindParam(':track', $track, PDO::PARAM_STR);
+						$st->execute();
+						$bestTimes = $st->fetchAll();
+						//print_r($bestTimes);
+						$bestTime = $bestTimes[0]['best'];
+
+						// Get users that have driven this time.
+						$st = $pdo->prepare("SELECT user FROM records WHERE track = :track AND best = :best ORDER BY LOWER(user)");
+						$st->bindParam(':track', $track, PDO::PARAM_STR);
+						$st->bindParam(':best', $bestTime, PDO::PARAM_INT);
+						$st->execute();
+						$users = $st->fetchAll(PDO::FETCH_COLUMN, 0);
+						//print_r($users);
+?>			<tr>
+				<td><?php echo $track; ?></td>
+				<td><?php echo htmlspecialchars($bestTime / 1000.0); ?>s</td>
+				<td><?php echo htmlspecialchars(implode(', ', $users)); ?></td>
+<?php
+					if ($selectedUser) {
+						$bestTimeByUser = get_best_time_by_user($bestTimes, $selectedUser);
+						if ($bestTimeByUser) {
+							echo "				<td>".($bestTimeByUser[0] / 1000.0)."s</td>\n";
+							echo "				<td>".sprintf("%.3f", $bestTimeByUser[0] / 1000.0 - $bestTime / 1000.0)."s</td>\n";
+							echo "				<td>".sprintf("%.1f", $bestTimeByUser[0] / $bestTime * 100)."%</td>\n";
+							echo "				<td>".$bestTimeByUser[1]."</td>\n";
+						} else {
+							echo "				<td>-</td>\n";
+							echo "				<td>-</td>\n";
+							echo "				<td>-</td>\n";
+							echo "				<td>-</td>\n";
+						}
+					}
+				?>
+			</tr>
+<?php
+					}
+				} catch (PDOException $e) {
+					echo 'Database error: '.htmlspecialchars($e->getMessage());
+				}
+			?>
+		</table>
+
+<?php echo "		<h3>".htmlspecialchars($track_set)." - Total time per user</h3>"; ?>
+
+		<table class="table table-striped table-hover table-sm">
+			<tr>
+				<th scope="col">User</th>
+				<th scope="col">Total time</th>
+			</tr>
+<?php
+				try {
+					$pdo = new \PDO("sqlite:database.db");
+					$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+					$st = $pdo->prepare("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records WHERE track LIKE :track_set GROUP BY user HAVING count = 25 ORDER BY count DESC, total_time ASC");
+					$st->bindValue('track_set', addcslashes("$track_set", "?%")."%", PDO::PARAM_STR);
+					$st->execute();
+					while ($row = $st->fetch()) {
+						//print_r($row);
+?>			<tr>
+				<td><?php echo $row['user']; ?></td>
+				<td><?php echo htmlspecialchars($row['total_time'] / 1000.0); ?>s</td>
+			</tr>
+<?php
+					}
+
+					$results = $pdo->query("SELECT user, COUNT(track) AS count FROM records GROUP BY user HAVING count < 25 ORDER BY LOWER(user)");
+					while ($row = $results->fetch()) {
+						//print_r($row);
+?>			<tr>
+				<td><?php echo $row['user']; ?></td>
+				<td>&#8734;s</td>
+			</tr>
+<?php
+					}
+				} catch (PDOException $e) {
+					echo 'Database error: '.htmlspecialchars($e->getMessage());
+				}
+			?>
+		</table>
+<?php
+	}
+?><!doctype html>
 <html lang="en">
 <head>
 	<meta charset="utf-8">
@@ -11,45 +154,8 @@
 	<div class="container">
 		<h1>Trackmania Records</h1>
 
-		<table class="table table-striped table-hover table-sm">
-			<tr>
-				<th scope="col">Track</th>
-				<th scope="col">Best time</th>
-				<th scope="col">Driven by</th>
-			</tr>
-			<?php
-				try {
-					$pdo = new \PDO("sqlite:database.db");
-					$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-					for ($i = 1; $i <= 25; $i++) {
-						$track = sprintf("Training - %02d", $i);
-
-						// Determine best time for track.
-						$st = $pdo->prepare("SELECT best FROM records WHERE track = :track ORDER BY best ASC LIMIT 1");
-						$st->bindParam(':track', $track, PDO::PARAM_STR);
-						$st->execute();
-						$row = $st->fetch();
-						$best = $row['best'];
-
-						$st = $pdo->prepare("SELECT user FROM records WHERE track = :track AND best = :best");
-						$st->bindParam(':track', $track, PDO::PARAM_STR);
-						$st->bindParam(':best', $best, PDO::PARAM_INT);
-						$st->execute();
-						$users = $st->fetchAll(PDO::FETCH_COLUMN, 0);
-						//print_r($users);
-?>			<tr>
-				<td><?php echo $track; ?></td>
-				<td><?php echo htmlspecialchars($best / 1000.0); ?>s</td>
-				<td><?php echo htmlspecialchars(implode(',', $users)); ?></td>
-			</tr>
-<?php
-					}
-				} catch (PDOException $e) {
-					echo 'Database error: '.htmlspecialchars($e->getMessage());
-				}
-			?>
-		</table>
+<?php table_for_track_set("Training", $selectedUser); ?>
+<?php table_for_track_set("Summer 2020", $selectedUser); ?>
 
 		<h2>Upload instructions</h2>
 
@@ -59,7 +165,7 @@
 			<li>Install the upload script by executing this command:<br>
 				<span class="text-monospace">pip3 install --upgrade upload-tm-records</span></li>
 			<li>Now you can always run the following command to upload your latest records to this server:<br>
-				<span class="text-monospace">upload-tm-records.exe <?php echo htmlspecialchars($_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])."upload.php"; ?></span></li>
+				<span class="text-monospace">upload-tm-records.exe <?php echo htmlspecialchars($_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST']."/upload.php"); ?></span></li>
 		</ul>
 	</div>
 </body>

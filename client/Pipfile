@@ -9,7 +9,4 @@ yapf = "~=0.30"
 twine = "*"
 
 [packages]
-requests = "*"
-
-[requires]
-python_version = "3.8"
+requests = "~=2.20"
