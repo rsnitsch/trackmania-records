@@ -22,7 +22,7 @@
 		return null;
 	}
 	
-	function table_for_track_set($track_set) {
+	function table_for_track_set($track_set, $selectedUser) {
 		if ($track_set == "Training")
 			$count = 25;
 		else if ($track_set == "Summer 2020") {
@@ -154,8 +154,8 @@
 	<div class="container">
 		<h1>Trackmania Records</h1>
 
-<?php table_for_track_set("Training"); ?>
-<?php table_for_track_set("Summer 2020"); ?>
+<?php table_for_track_set("Training", $selectedUser); ?>
+<?php table_for_track_set("Summer 2020", $selectedUser); ?>
 
 		<h2>Upload instructions</h2>
 
