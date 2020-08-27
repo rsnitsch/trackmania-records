@@ -21,18 +21,18 @@
 
 		return null;
 	}
-?><!doctype html>
-<html lang="en">
-<head>
-	<meta charset="utf-8">
-	<title>Trackmania Records</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="bootstrap.min.css">
-	<meta name="referrer" content="same-origin">
-</head>
-<body>
-	<div class="container">
-		<h1>Trackmania Records</h1>
+	
+	function table_for_track_set($track_set) {
+		if ($track_set == "Training")
+			$count = 25;
+		else if ($track_set == "Summer 2020") {
+			$count = 25;
+		} else {
+			throw Exception("Unknown track set");
+		}
+		
+		echo "		<h2>".htmlspecialchars($track_set)." - Records</h2>";
+		?>
 
 		<table class="table table-striped table-hover table-sm">
 			<tr>
@@ -55,7 +55,7 @@
 
 					
 					for ($i = 1; $i <= 25; $i++) {
-						$track = sprintf("Training - %02d", $i);
+						$track = sprintf("$track_set - %02d", $i);
 
 						// Determine best time for track.
 						$st = $pdo->prepare("SELECT user, best FROM records WHERE track = :track ORDER BY best ASC");
@@ -101,7 +101,7 @@
 			?>
 		</table>
 
-		<h2>Total time per user</h2>
+<?php echo "		<h3>".htmlspecialchars($track_set)." - Total time per user</h3>"; ?>
 
 		<table class="table table-striped table-hover table-sm">
 			<tr>
@@ -113,8 +113,10 @@
 					$pdo = new \PDO("sqlite:database.db");
 					$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-					$results = $pdo->query("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records GROUP BY user HAVING count = 25 ORDER BY count DESC, total_time ASC");
-					while ($row = $results->fetch()) {
+					$st = $pdo->prepare("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records WHERE track LIKE :track_set GROUP BY user HAVING count = 25 ORDER BY count DESC, total_time ASC");
+					$st->bindValue('track_set', addcslashes("$track_set", "?%")."%", PDO::PARAM_STR);
+					$st->execute();
+					while ($row = $st->fetch()) {
 						//print_r($row);
 ?>			<tr>
 				<td><?php echo $row['user']; ?></td>
@@ -137,6 +139,23 @@
 				}
 			?>
 		</table>
+<?php
+	}
+?><!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Trackmania Records</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="bootstrap.min.css">
+	<meta name="referrer" content="same-origin">
+</head>
+<body>
+	<div class="container">
+		<h1>Trackmania Records</h1>
+
+<?php table_for_track_set("Training"); ?>
+<?php table_for_track_set("Summer 2020"); ?>
 
 		<h2>Upload instructions</h2>
 
