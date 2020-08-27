@@ -125,8 +125,10 @@
 <?php
 					}
 
-					$results = $pdo->query("SELECT user, COUNT(track) AS count FROM records GROUP BY user HAVING count < 25 ORDER BY LOWER(user)");
-					while ($row = $results->fetch()) {
+					$st = $pdo->prepare("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records WHERE track LIKE :track_set GROUP BY user HAVING count < 25 ORDER BY count DESC, total_time ASC");
+					$st->bindValue('track_set', addcslashes("$trackSet", "?%")."%", PDO::PARAM_STR);
+					$st->execute();
+					while ($row = $st->fetch()) {
 						//print_r($row);
 ?>			<tr>
 				<td><?php echo $row['user']; ?></td>
