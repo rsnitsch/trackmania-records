@@ -163,14 +163,14 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Trackmania Records</title>
+	<title>trackmania-records</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="bootstrap.min.css">
 	<meta name="referrer" content="same-origin">
 </head>
 <body>
 	<div class="container">
-		<h1>Trackmania Records</h1>
+		<h1>trackmania-records</h1>
 
 <?php
 	if (file_exists("database.db")) {
@@ -183,10 +183,12 @@
 
 		<h2>Upload instructions</h2>
 
+		<p>To upload your Trackmania 2020 records to this page, follow these instructions:</p>
+
 		<ul>
 			<li>Download Python 3 from python.org and install it: <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a></li>
 			<li>Open a shell/terminal window (cmd.exe or PowerShell)</li>
-			<li>Install the upload script by executing this command:<br>
+			<li>Install the upload tool by executing this command:<br>
 				<span class="text-monospace">pip3 install --upgrade upload-tm-records</span></li>
 			<li>Now you can always run the following command to upload your latest records to this server:<br>
 				<span class="text-monospace">upload-tm-records.exe <?php echo htmlspecialchars($_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST']."/upload.php"); ?></span></li>
