@@ -14,7 +14,7 @@ It also features a total time comparison:
 
 ### 1. Install web application
 
-Please refer to: https://github.com/rsnitsch/trackmania-records/tree/develop/client
+Please refer to: https://github.com/rsnitsch/trackmania-records/tree/develop/server
 
 ### 2. Install uploader
 
