@@ -75,15 +75,15 @@
 						
 						if ($trackSet == "Summer 2020") {
 							if ($i <= 5) {
-								$tableColorClass = " class='table-light'";
+								$tableColorClass = " class='whiteTracks'";
 							} else if ($i <= 10) {
-								$tableColorClass = " class='table-success'";
+								$tableColorClass = " class='greenTracks'";
 							} else if ($i <= 15) {
-								$tableColorClass = " class='table-primary'";
+								$tableColorClass = " class='blueTracks'";
 							} else if ($i <= 20) {
-								$tableColorClass = " class='table-danger'";
+								$tableColorClass = " class='redTracks'";
 							} else if ($i <= 25) {
-								$tableColorClass = " class='table-secondary'";
+								$tableColorClass = " class='blackTracks'";
 							}
 						} else {
 							$tableColorClass = "";
@@ -166,6 +166,7 @@
 	<title>trackmania-records</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="bootstrap.min.css">
+	<link rel="stylesheet" href="style.css">
 	<meta name="referrer" content="same-origin">
 </head>
 <body>

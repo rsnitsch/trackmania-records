@@ -1,0 +1,39 @@
+tr.whiteTracks td:first-child {
+    background: linear-gradient(90deg, white 3px, transparent 3px);
+}
+
+tr.whiteTracks td:last-child {
+    background: linear-gradient(270deg, white 3px, transparent 3px);
+}
+
+tr.greenTracks td:first-child {
+    background: linear-gradient(90deg, green 3px, transparent 3px);
+}
+
+tr.greenTracks td:last-child {
+    background: linear-gradient(270deg, green 3px, transparent 3px);
+}
+
+tr.blueTracks td:first-child {
+    background: linear-gradient(90deg, blue 3px, transparent 3px);
+}
+
+tr.blueTracks td:last-child {
+    background: linear-gradient(270deg, blue 3px, transparent 3px);
+}
+
+tr.redTracks td:first-child {
+    background: linear-gradient(90deg, red 3px, transparent 3px);
+}
+
+tr.redTracks td:last-child {
+    background: linear-gradient(270deg, red 3px, transparent 3px);
+}
+
+tr.blackTracks td:first-child {
+    background: linear-gradient(90deg, black 3px, transparent 3px);
+}
+
+tr.blackTracks td:last-child {
+    background: linear-gradient(270deg, black 3px, transparent 3px);
+}
