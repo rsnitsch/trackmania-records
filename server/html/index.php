@@ -172,8 +172,14 @@
 	<div class="container">
 		<h1>Trackmania Records</h1>
 
-<?php tableForTrackSet("Training", $selectedUser); ?>
-<?php tableForTrackSet("Summer 2020", $selectedUser); ?>
+<?php
+	if (file_exists("database.db")) {
+		tableForTrackSet("Training", $selectedUser);
+		tableForTrackSet("Summer 2020", $selectedUser);
+	} else {
+		echo "<p>No records have been uploaded yet...</p>";
+	}
+?>
 
 		<h2>Upload instructions</h2>
 
