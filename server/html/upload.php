@@ -64,5 +64,6 @@
 
 		echo "Success!";
 	} catch (PDOException $e) {
-		echo 'Database error: '.$e->getMessage();
+		http_response_code(500);
+		die('Database error: '.$e->getMessage());
 	}
