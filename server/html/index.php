@@ -193,6 +193,10 @@
 			<li>Now you can always run the following command to upload your latest records to this server:<br>
 				<span class="text-monospace">upload-tm-records.exe <?php echo htmlspecialchars($_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST']."/upload.php"); ?></span></li>
 		</ul>
+
+		<hr>
+
+		<p class="small">trackmania-records is opensource: <a href="https://github.com/rsnitsch/trackmania-records">github.com/rsnitsch/trackmania-records</a></p>
 	</div>
 </body>
 </html>
