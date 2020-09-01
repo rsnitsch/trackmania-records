@@ -18,8 +18,8 @@ def get_replay_directory():
     Return the Trackmania 2020 Autosaves replay directory.
     
     Note:
-        In some cases, Trackmania 2020 uses the Documents\Trackmania2020 subfolder. Sometimes,
-        it uses the Documents\Trackmania subfolder (without any 2020 indication).
+        In some cases, Trackmania 2020 uses the Documents\\Trackmania2020 subfolder. Sometimes,
+        it uses the Documents\\Trackmania subfolder (without any 2020 indication).
 
         I assume that it uses Trackmania2020 if another (older) Trackmania version is
         installed on the system. Therefore, it seems prudent to try the Trackmania2020 subfolder
