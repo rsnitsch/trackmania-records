@@ -14,7 +14,7 @@
 		die("No client_version");
 	}
 
-	define('REQUIRED_CLIENT_VERSION', '1.0.0b1');
+	define('REQUIRED_CLIENT_VERSION', '1.0.0');
 	if ($_POST['client_version'] !== REQUIRED_CLIENT_VERSION) {
 		http_response_code(400);
 		die("Your client is outdated. Please use version ".REQUIRED_CLIENT_VERSION);
@@ -64,5 +64,6 @@
 
 		echo "Success!";
 	} catch (PDOException $e) {
-		echo 'Database error: '.$e->getMessage();
+		http_response_code(500);
+		die('Database error: '.$e->getMessage());
 	}

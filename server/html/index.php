@@ -6,7 +6,7 @@
 
 	// Returns the best time of the specified user along with the rank that this time
 	// results in compared to the times by other users.
-	function get_best_time_by_user($bestTimes, $user) {
+	function getBestTimeByUser($bestTimes, $user) {
 		$rank = 1;
 		for ($i = 0; $i < count($bestTimes); $i++) {
 			$bestTime = $bestTimes[$i];
@@ -21,18 +21,18 @@
 
 		return null;
 	}
-	
-	function table_for_track_set($track_set, $selectedUser) {
-		if ($track_set == "Training")
+
+	function tableForTrackSet($trackSet, $selectedUser) {
+		if ($trackSet == "Training")
 			$count = 25;
-		else if ($track_set == "Summer 2020") {
+		else if ($trackSet == "Summer 2020" or $trackSet == "Fall 2020") {
 			$count = 25;
 		} else {
 			throw Exception("Unknown track set");
 		}
-		
-		echo "		<h2>".htmlspecialchars($track_set)." - Records</h2>";
-		?>
+
+		echo "		<h2>".htmlspecialchars($trackSet)." - Records</h2>";
+?>
 
 		<table class="table table-striped table-hover table-sm">
 			<tr>
@@ -55,7 +55,7 @@
 
 					
 					for ($i = 1; $i <= 25; $i++) {
-						$track = sprintf("$track_set - %02d", $i);
+						$track = sprintf("$trackSet - %02d", $i);
 
 						// Determine best time for track.
 						$st = $pdo->prepare("SELECT user, best FROM records WHERE track = :track ORDER BY best ASC");
@@ -72,13 +72,29 @@
 						$st->execute();
 						$users = $st->fetchAll(PDO::FETCH_COLUMN, 0);
 						//print_r($users);
-?>			<tr>
+						
+						if ($trackSet == "Summer 2020" or $trackSet == "Fall 2020") {
+							if ($i <= 5) {
+								$tableColorClass = " class='whiteTracks'";
+							} else if ($i <= 10) {
+								$tableColorClass = " class='greenTracks'";
+							} else if ($i <= 15) {
+								$tableColorClass = " class='blueTracks'";
+							} else if ($i <= 20) {
+								$tableColorClass = " class='redTracks'";
+							} else if ($i <= 25) {
+								$tableColorClass = " class='blackTracks'";
+							}
+						} else {
+							$tableColorClass = "";
+						}
+?>			<tr<?php echo $tableColorClass; ?>>
 				<td><?php echo $track; ?></td>
 				<td><?php echo htmlspecialchars($bestTime / 1000.0); ?>s</td>
 				<td><?php echo htmlspecialchars(implode(', ', $users)); ?></td>
 <?php
 					if ($selectedUser) {
-						$bestTimeByUser = get_best_time_by_user($bestTimes, $selectedUser);
+						$bestTimeByUser = getBestTimeByUser($bestTimes, $selectedUser);
 						if ($bestTimeByUser) {
 							echo "				<td>".($bestTimeByUser[0] / 1000.0)."s</td>\n";
 							echo "				<td>".sprintf("%.3f", $bestTimeByUser[0] / 1000.0 - $bestTime / 1000.0)."s</td>\n";
@@ -91,17 +107,17 @@
 							echo "				<td>-</td>\n";
 						}
 					}
-				?>
+?>
 			</tr>
 <?php
 					}
 				} catch (PDOException $e) {
 					echo 'Database error: '.htmlspecialchars($e->getMessage());
 				}
-			?>
+?>
 		</table>
 
-<?php echo "		<h3>".htmlspecialchars($track_set)." - Total time per user</h3>"; ?>
+<?php echo "		<h3>".htmlspecialchars($trackSet)." - Total time per user</h3>"; ?>
 
 		<table class="table table-striped table-hover table-sm">
 			<tr>
@@ -114,7 +130,7 @@
 					$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 					$st = $pdo->prepare("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records WHERE track LIKE :track_set GROUP BY user HAVING count = 25 ORDER BY count DESC, total_time ASC");
-					$st->bindValue('track_set', addcslashes("$track_set", "?%")."%", PDO::PARAM_STR);
+					$st->bindValue('track_set', addcslashes("$trackSet", "?%")."%", PDO::PARAM_STR);
 					$st->execute();
 					while ($row = $st->fetch()) {
 						//print_r($row);
@@ -125,8 +141,10 @@
 <?php
 					}
 
-					$results = $pdo->query("SELECT user, COUNT(track) AS count FROM records GROUP BY user HAVING count < 25 ORDER BY LOWER(user)");
-					while ($row = $results->fetch()) {
+					$st = $pdo->prepare("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records WHERE track LIKE :track_set GROUP BY user HAVING count < 25 ORDER BY count DESC, total_time ASC");
+					$st->bindValue('track_set', addcslashes("$trackSet", "?%")."%", PDO::PARAM_STR);
+					$st->execute();
+					while ($row = $st->fetch()) {
 						//print_r($row);
 ?>			<tr>
 				<td><?php echo $row['user']; ?></td>
@@ -145,28 +163,42 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Trackmania Records</title>
+	<title>trackmania-records</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="bootstrap.min.css">
+	<link rel="stylesheet" href="style.css">
 	<meta name="referrer" content="same-origin">
 </head>
 <body>
 	<div class="container">
-		<h1>Trackmania Records</h1>
+		<h1>trackmania-records</h1>
 
-<?php table_for_track_set("Training", $selectedUser); ?>
-<?php table_for_track_set("Summer 2020", $selectedUser); ?>
+<?php
+	if (file_exists("database.db")) {
+		tableForTrackSet("Fall 2020", $selectedUser);
+		tableForTrackSet("Summer 2020", $selectedUser);
+		tableForTrackSet("Training", $selectedUser);
+	} else {
+		echo "<p>No records have been uploaded yet...</p>";
+	}
+?>
 
 		<h2>Upload instructions</h2>
+
+		<p>To upload your Trackmania 2020 records to this page, follow these instructions:</p>
 
 		<ul>
 			<li>Download Python 3 from python.org and install it: <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a></li>
 			<li>Open a shell/terminal window (cmd.exe or PowerShell)</li>
-			<li>Install the upload script by executing this command:<br>
+			<li>Install the upload tool by executing this command:<br>
 				<span class="text-monospace">pip3 install --upgrade upload-tm-records</span></li>
 			<li>Now you can always run the following command to upload your latest records to this server:<br>
 				<span class="text-monospace">upload-tm-records.exe <?php echo htmlspecialchars($_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST']."/upload.php"); ?></span></li>
 		</ul>
+
+		<hr>
+
+		<p class="small">trackmania-records is opensource: <a href="https://github.com/rsnitsch/trackmania-records">github.com/rsnitsch/trackmania-records</a></p>
 	</div>
 </body>
 </html>

@@ -1,9 +1,10 @@
-Trackmania records uploader
-===========================
+trackmania-records - Uploader
+=============================
 
-This tool extracts your records for the training maps of the latest
-Trackmania version (from 2020) and uploads them to a server so you can
-easily share your records with friends.
+This is the uploader for trackmania-records, a Trackmania 2020 records sharing/comparison tool.
+
+The uploader extracts your records for the training maps of the latest Trackmania version (from 2020)
+and uploads them to the web application server so you can easily share your records with friends.
 
 Install (requires Python 3 on your system):
 
