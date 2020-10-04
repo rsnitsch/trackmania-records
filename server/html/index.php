@@ -25,7 +25,7 @@
 	function tableForTrackSet($trackSet, $selectedUser) {
 		if ($trackSet == "Training")
 			$count = 25;
-		else if ($trackSet == "Summer 2020") {
+		else if ($trackSet == "Summer 2020" or $trackSet == "Fall 2020") {
 			$count = 25;
 		} else {
 			throw Exception("Unknown track set");
@@ -73,7 +73,7 @@
 						$users = $st->fetchAll(PDO::FETCH_COLUMN, 0);
 						//print_r($users);
 						
-						if ($trackSet == "Summer 2020") {
+						if ($trackSet == "Summer 2020" or $trackSet == "Fall 2020") {
 							if ($i <= 5) {
 								$tableColorClass = " class='whiteTracks'";
 							} else if ($i <= 10) {
@@ -175,8 +175,9 @@
 
 <?php
 	if (file_exists("database.db")) {
-		tableForTrackSet("Training", $selectedUser);
+		tableForTrackSet("Fall 2020", $selectedUser);
 		tableForTrackSet("Summer 2020", $selectedUser);
+		tableForTrackSet("Training", $selectedUser);
 	} else {
 		echo "<p>No records have been uploaded yet...</p>";
 	}
