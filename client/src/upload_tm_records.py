@@ -104,7 +104,8 @@ def main():
             logger.info('Replay directory found at: %s', replay_directory)
 
     training_autosave_regexp = re.compile(
-        r'^(.*)_(Summer 2020 - [0-9]+|Training - [0-9]+)_PersonalBest_TimeAttack\.Replay\.Gbx$')
+        r'^(.*)_((?:Summer|Fall|Winter|Spring) 202[0-9] - [0-9]+|Training - [0-9]+)_PersonalBest_TimeAttack\.Replay\.Gbx$'
+    )
     replay_files = []
     for item in os.listdir(replay_directory):
         match = training_autosave_regexp.search(item)
