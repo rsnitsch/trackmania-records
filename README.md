@@ -16,11 +16,11 @@ Advanced statistics for a certain user can be displayed by appending `?user=name
 
 ## Setup
 
-### 1. Install web application
+### 1. Install web application (server)
 
 Please refer to: https://github.com/rsnitsch/trackmania-records/tree/develop/server
 
-### 2. Install uploader
+### 2. Install uploader (client)
 
 The uploader is what extracts your trackmania records from the autosaved replay files on
 your computer and sends them to the web application.
