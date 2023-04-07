@@ -4,11 +4,15 @@ This project allows you to compare your Trackmania 2020 records with your friend
 
 In the browser, it looks like this:
 
-![Screenshot 1](https://github.com/rsnitsch/trackmania-records/raw/develop/screenshot1.png "Screenshot 1")
+![Screenshot 1](docs/screenshot1.png "Screenshot 1")
 
 It also features a total time comparison:
 
-![Screenshot 2](https://github.com/rsnitsch/trackmania-records/raw/develop/screenshot2.png "Screenshot 2")
+![Screenshot 2](docs/screenshot2.png "Screenshot 2")
+
+Advanced statistics for a certain user can be displayed by appending `?user=name` to the URL (address in your browser):
+
+![Screenshot 3 showing advanced user statistics feature](docs/advanced_user_stats.png "Advanced user statistics")
 
 ## Setup
 
