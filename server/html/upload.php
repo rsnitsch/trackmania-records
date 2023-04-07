@@ -32,9 +32,10 @@
 		$commands = ['CREATE TABLE IF NOT EXISTS records (
 						game         TEXT NOT NULL,
 						user         TEXT NOT NULL,
-						track        TEXT NOT NULL,
+						trackSet	 TEXT NOT NULL,
+						trackNumber  INTEGER NOT NULL,
 						best         INTEGER NOT NULL,
-						PRIMARY KEY (game, user, track)
+						PRIMARY KEY (game, user, trackSet, trackNumber)
 					  )'];
 
 		foreach ($commands as $command) {
@@ -45,19 +46,22 @@
 			//print_r($record);
 
 			$user = $record['user'];
-			$track = $record['track'];
+			$trackSet = substr($record['trackSet'], 0, strpos($record['trackSet'], ' - '));
+			$trackNumber = intval(substr($record['trackSet'], strpos($record['trackSet'], ' - ') + 3));
 			$best = intval($record['best']);
 
 			// Delete previous record.
-			$st = $pdo->prepare('DELETE FROM records WHERE user = :user AND track = :track');
+			$st = $pdo->prepare('DELETE FROM records WHERE user = :user AND trackSet = :trackSet AND trackNumber = :trackNumber');
 			$st->bindParam(':user', $user, PDO::PARAM_STR);
-			$st->bindParam(':track', $track, PDO::PARAM_STR);
+			$st->bindParam(':trackSet', $trackSet, PDO::PARAM_STR);
+			$st->bindParam(':trackNumber', $trackNumber, PDO::PARAM_INT);
 			$st->execute();
 
 			// Add new record.
-			$st = $pdo->prepare("INSERT INTO records (game, user, track, best) VALUES ('Trackmania 2020', :user, :track, :best)");
+			$st = $pdo->prepare("INSERT INTO records (game, user, trackSet, trackNumber, best) VALUES ('Trackmania 2020', :user, :trackSet, :trackNumber, :best)");
 			$st->bindParam(':user', $user, PDO::PARAM_STR);
-			$st->bindParam(':track', $track, PDO::PARAM_STR);
+			$st->bindParam(':trackSet', $trackSet, PDO::PARAM_STR);
+			$st->bindParam(':trackNumber', $trackNumber, PDO::PARAM_INT);
 			$st->bindParam(':best', $best, PDO::PARAM_INT);
 			$st->execute();
 		}

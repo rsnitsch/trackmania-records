@@ -22,14 +22,8 @@
 		return null;
 	}
 
-	function tableForTrackSet($trackSet, $selectedUser) {
-		if ($trackSet == "Training")
+	function tableForTrackSet($pdo, $trackSet, $selectedUser) {
 			$count = 25;
-		else if ($trackSet == "Summer 2020" or $trackSet == "Fall 2020") {
-			$count = 25;
-		} else {
-			throw Exception("Unknown track set");
-		}
 
 		echo "		<h2>".htmlspecialchars($trackSet)." - Records</h2>";
 ?>
@@ -50,46 +44,42 @@
 			</tr>
 <?php
 				try {
-					$pdo = new \PDO("sqlite:database.db");
-					$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-					
-					for ($i = 1; $i <= 25; $i++) {
-						$track = sprintf("$trackSet - %02d", $i);
-
+					for ($trackNumber = 1; $trackNumber <= 25; $trackNumber++) {
 						// Determine best time for track.
-						$st = $pdo->prepare("SELECT user, best FROM records WHERE track = :track ORDER BY best ASC");
-						$st->bindParam(':track', $track, PDO::PARAM_STR);
+						$st = $pdo->prepare("SELECT user, best FROM records WHERE trackSet = :trackSet AND trackNumber = :trackNumber ORDER BY best ASC");
+						$st->bindParam(':trackSet', $trackSet, PDO::PARAM_STR);
+						$st->bindParam(':trackNumber', $trackNumber, PDO::PARAM_INT);
 						$st->execute();
 						$bestTimes = $st->fetchAll();
 						//print_r($bestTimes);
 						$bestTime = $bestTimes[0]['best'];
 
 						// Get users that have driven this time.
-						$st = $pdo->prepare("SELECT user FROM records WHERE track = :track AND best = :best ORDER BY LOWER(user)");
-						$st->bindParam(':track', $track, PDO::PARAM_STR);
+						$st = $pdo->prepare("SELECT user FROM records WHERE trackSet = :trackSet AND trackNumber = :trackNumber AND best = :best ORDER BY LOWER(user)");
+						$st->bindParam(':trackSet', $trackSet, PDO::PARAM_STR);
+						$st->bindParam(':trackNumber', $trackNumber, PDO::PARAM_INT);
 						$st->bindParam(':best', $bestTime, PDO::PARAM_INT);
 						$st->execute();
 						$users = $st->fetchAll(PDO::FETCH_COLUMN, 0);
 						//print_r($users);
 						
-						if ($trackSet == "Summer 2020" or $trackSet == "Fall 2020") {
-							if ($i <= 5) {
+						if ($trackSet != "Training") {
+							if ($trackNumber <= 5) {
 								$tableColorClass = " class='whiteTracks'";
-							} else if ($i <= 10) {
+							} else if ($trackNumber <= 10) {
 								$tableColorClass = " class='greenTracks'";
-							} else if ($i <= 15) {
+							} else if ($trackNumber <= 15) {
 								$tableColorClass = " class='blueTracks'";
-							} else if ($i <= 20) {
+							} else if ($trackNumber <= 20) {
 								$tableColorClass = " class='redTracks'";
-							} else if ($i <= 25) {
+							} else if ($trackNumber <= 25) {
 								$tableColorClass = " class='blackTracks'";
 							}
 						} else {
 							$tableColorClass = "";
 						}
 ?>			<tr<?php echo $tableColorClass; ?>>
-				<td><?php echo $track; ?></td>
+				<td><?php echo $trackSet." - ".$trackNumber; ?></td>
 				<td><?php echo htmlspecialchars($bestTime / 1000.0); ?>s</td>
 				<td><?php echo htmlspecialchars(implode(', ', $users)); ?></td>
 <?php
@@ -129,8 +119,8 @@
 					$pdo = new \PDO("sqlite:database.db");
 					$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-					$st = $pdo->prepare("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records WHERE track LIKE :track_set GROUP BY user HAVING count = 25 ORDER BY count DESC, total_time ASC");
-					$st->bindValue('track_set', addcslashes("$trackSet", "?%")."%", PDO::PARAM_STR);
+					$st = $pdo->prepare("SELECT user, SUM(best) AS total_time, COUNT(trackNumber) AS count FROM records WHERE trackSet = :track_set GROUP BY user HAVING count = 25 ORDER BY count DESC, total_time ASC");
+					$st->bindValue('track_set', $trackSet, PDO::PARAM_STR);
 					$st->execute();
 					while ($row = $st->fetch()) {
 						//print_r($row);
@@ -141,8 +131,8 @@
 <?php
 					}
 
-					$st = $pdo->prepare("SELECT user, SUM(best) AS total_time, COUNT(track) AS count FROM records WHERE track LIKE :track_set GROUP BY user HAVING count < 25 ORDER BY count DESC, total_time ASC");
-					$st->bindValue('track_set', addcslashes("$trackSet", "?%")."%", PDO::PARAM_STR);
+					$st = $pdo->prepare("SELECT user, SUM(best) AS total_time, COUNT(trackNumber) AS count FROM records WHERE trackSet = :track_set GROUP BY user HAVING count < 25 ORDER BY count DESC, total_time ASC");
+					$st->bindValue('track_set', $trackSet, PDO::PARAM_STR);
 					$st->execute();
 					while ($row = $st->fetch()) {
 						//print_r($row);
@@ -175,9 +165,20 @@
 
 <?php
 	if (file_exists("database.db")) {
-		tableForTrackSet("Fall 2020", $selectedUser);
-		tableForTrackSet("Summer 2020", $selectedUser);
-		tableForTrackSet("Training", $selectedUser);
+		try {
+			$pdo = new \PDO("sqlite:database.db");
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+			// Display all track sets for which at least one user has driven *all* tracks.
+			$st = $pdo->prepare("SELECT DISTINCT trackSet, COUNT(trackNumber) AS count FROM records GROUP BY trackSet, user HAVING count = 25");
+			$st->execute();
+			$rows = $st->fetchAll();
+			foreach ($rows as $row) {
+				tableForTrackSet($pdo, $row['trackSet'], $selectedUser);
+			}
+		} catch (PDOException $e) {
+			echo 'Database error: '.htmlspecialchars($e->getMessage());
+		}
 	} else {
 		echo "<p>No records have been uploaded yet...</p>";
 	}
