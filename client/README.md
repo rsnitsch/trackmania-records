@@ -1,5 +1,4 @@
-trackmania-records - Uploader
-=============================
+# trackmania-records - Uploader (client)
 
 This is the uploader for trackmania-records, a Trackmania 2020 records sharing/comparison tool.
 
