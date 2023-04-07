@@ -1,4 +1,4 @@
-# trackmania-records - Web application
+# trackmania-records - Web application (server)
 
 This is the web application part of trackmania-records, a Trackmania 2020
 records sharing tool. The web application is where all your records (and the
