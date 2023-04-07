@@ -1,4 +1,6 @@
 <?php
+	include('version.php');
+
 	// TODO: Improve generation of upload.php URL (currently it just uses hostname + "/upload.php")
 
 	header("Content-Security-Policy: default-src 'self'");
@@ -23,7 +25,7 @@
 	}
 
 	function tableForTrackSet($pdo, $trackSet, $selectedUser) {
-			$count = 25;
+		$count = 25;
 
 		echo "		<h2>".htmlspecialchars($trackSet)." - Records</h2>";
 ?>
@@ -199,7 +201,9 @@
 
 		<hr>
 
-		<p class="small">trackmania-records is opensource: <a href="https://github.com/rsnitsch/trackmania-records">github.com/rsnitsch/trackmania-records</a></p>
+		<footer>
+			<p class="small">trackmania-records v<?php echo SERVER_VERSION; ?>. this software is opensource: <a href="https://github.com/rsnitsch/trackmania-records">github.com/rsnitsch/trackmania-records</a></p>
+		</footer>
 	</div>
 </body>
 </html>
