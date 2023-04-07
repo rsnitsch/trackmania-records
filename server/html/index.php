@@ -202,7 +202,10 @@
 		<hr>
 
 		<footer>
-			<p class="small">trackmania-records v<?php echo SERVER_VERSION; ?>. this software is opensource: <a href="https://github.com/rsnitsch/trackmania-records">github.com/rsnitsch/trackmania-records</a></p>
+			<p class="small">
+				trackmania-records server v<?php echo SERVER_VERSION; ?>.
+				This software is opensource: <a href="https://github.com/rsnitsch/trackmania-records">github.com/rsnitsch/trackmania-records</a>
+			</p>
 		</footer>
 	</div>
 </body>
