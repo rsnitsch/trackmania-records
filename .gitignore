@@ -1,4 +1,4 @@
-server/html/database.db
+*.db
 client/Pipfile.lock
 client/build/
 client/dist/
