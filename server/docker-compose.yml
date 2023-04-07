@@ -1,7 +1,7 @@
 version: "3"
 services:
   webserver:
-    image: php:7.4-apache
+    image: php:8.2-apache
     volumes:
         - ./html/:/var/www/html
     ports:
