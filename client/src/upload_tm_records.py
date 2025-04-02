@@ -119,7 +119,7 @@ def main():
         logger.debug('Processing file "%s"...', replay_file)
         best = extract_record_from_gbx_file(replay_file)
         logger.info("Record for track '%s': %.3fs", track, best / 1000.0)
-        records.append({'trackSet': track, 'user': user, 'best': best})
+        records.append({'track': track, 'user': user, 'best': best})
 
     logger.info("Uploading records...")
     try:

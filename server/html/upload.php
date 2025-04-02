@@ -49,9 +49,9 @@
                 http_response_code(400);
                 die("No user key in record");
             }
-            if (!isset($record['trackSet'])) {
+            if (!isset($record['track'])) {
                 http_response_code(400);
-                die("No trackSet key in record");
+                die("No track key in record");
             }
             if (!isset($record['best'])) {
                 http_response_code(400);
@@ -59,8 +59,8 @@
             }
 
 			$user = $record['user'];
-			$trackSet = substr($record['trackSet'], 0, strpos($record['trackSet'], ' - '));
-			$trackNumber = intval(substr($record['trackSet'], strpos($record['trackSet'], ' - ') + 3));
+			$trackSet = substr($record['track'], 0, strpos($record['track'], ' - '));
+			$trackNumber = intval(substr($record['track'], strpos($record['track'], ' - ') + 3));
 			$best = intval($record['best']);
 
 			// Delete previous record.
