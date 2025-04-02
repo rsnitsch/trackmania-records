@@ -122,6 +122,8 @@ def main():
 
     logger.info("Uploading records...")
     try:
+        logger.debug("Records dict:\n%s", json.dumps(records, indent=4))
+
         r = requests.post(args.server,
                           data={
                               'records': json.dumps(records),
@@ -129,6 +131,9 @@ def main():
                               'client_version': __version__
                           },
                           timeout=10)
+        
+        logger.debug("Server response content: %s", r.text)
+        logger.debug("Server response status code: %d", r.status_code)
         if r.status_code == 200:
             logger.info("SUCCESS!")
         else:
