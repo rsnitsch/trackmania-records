@@ -126,7 +126,8 @@ def main():
                               'records': json.dumps(records),
                               'client_name': 'upload_tm_records',
                               'client_version': __version__
-                          })
+                          },
+                          timeout=10)
         if r.status_code == 200:
             logger.info("SUCCESS!")
         else:
