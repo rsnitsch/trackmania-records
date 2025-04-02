@@ -14,7 +14,7 @@
 		die("No client_version");
 	}
 
-	define('REQUIRED_CLIENT_VERSION', '1.0.0');
+	define('REQUIRED_CLIENT_VERSION', '1.0.1');
 	if ($_POST['client_version'] !== REQUIRED_CLIENT_VERSION) {
 		http_response_code(400);
 		die("Your client is outdated. Please use version ".REQUIRED_CLIENT_VERSION);
@@ -44,6 +44,19 @@
 
 		foreach ($records as $record) {
 			//print_r($record);
+
+            if (!isset($record['user'])) {
+                http_response_code(400);
+                die("No user key in record");
+            }
+            if (!isset($record['trackSet'])) {
+                http_response_code(400);
+                die("No trackSet key in record");
+            }
+            if (!isset($record['best'])) {
+                http_response_code(400);
+                die("No best key in record");
+            }
 
 			$user = $record['user'];
 			$trackSet = substr($record['trackSet'], 0, strpos($record['trackSet'], ' - '));

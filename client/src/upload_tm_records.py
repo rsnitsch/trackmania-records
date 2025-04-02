@@ -8,7 +8,7 @@ import sys
 
 import requests
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 logger = logging.getLogger(__name__)
 
@@ -71,14 +71,16 @@ def extract_record_from_gbx_file(path):
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
-
     parser = argparse.ArgumentParser()
     parser.add_argument('server')
     parser.add_argument('--replay-directory', type=str, default=None)
+    parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('--version', action='version', version=__version__)
     args = parser.parse_args()
 
-    logger.debug("System: %s" % platform.system())
+    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
+
+    logger.debug("System: %s", platform.system())
     if platform.system() != 'Windows':
         logger.error('You are not running Windows. Currently, this tool only supports Windows.')
         sys.exit(1)
@@ -117,16 +119,22 @@ def main():
         logger.debug('Processing file "%s"...', replay_file)
         best = extract_record_from_gbx_file(replay_file)
         logger.info("Record for track '%s': %.3fs", track, best / 1000.0)
-        records.append({'track': track, 'user': user, 'best': best})
+        records.append({'trackSet': track, 'user': user, 'best': best})
 
     logger.info("Uploading records...")
     try:
+        logger.debug("Records dict:\n%s", json.dumps(records, indent=4))
+
         r = requests.post(args.server,
                           data={
                               'records': json.dumps(records),
                               'client_name': 'upload_tm_records',
                               'client_version': __version__
-                          })
+                          },
+                          timeout=10)
+        
+        logger.debug("Server response content: %s", r.text)
+        logger.debug("Server response status code: %d", r.status_code)
         if r.status_code == 200:
             logger.info("SUCCESS!")
         else:

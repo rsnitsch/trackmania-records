@@ -7,6 +7,7 @@ verify_ssl = true
 mypy = "~=0.782"
 yapf = "~=0.30"
 twine = "*"
+build = "*"
 
 [packages]
 requests = "~=2.20"
