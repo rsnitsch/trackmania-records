@@ -78,7 +78,7 @@ def main():
     parser.add_argument('--replay-directory', type=str, default=None)
     args = parser.parse_args()
 
-    logger.debug("System: %s" % platform.system())
+    logger.debug("System: %s", platform.system())
     if platform.system() != 'Windows':
         logger.error('You are not running Windows. Currently, this tool only supports Windows.')
         sys.exit(1)
