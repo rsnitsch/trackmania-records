@@ -4,10 +4,10 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-mypy = "~=0.782"
 yapf = "~=0.30"
 twine = "*"
 build = "*"
+pyright = "~=1.1.398"
 
 [packages]
 requests = "~=2.20"
