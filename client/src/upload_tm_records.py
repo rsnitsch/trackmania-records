@@ -75,6 +75,7 @@ def main():
     parser.add_argument('server')
     parser.add_argument('--replay-directory', type=str, default=None)
     parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('--version', action='version', version=__version__)
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
