@@ -132,7 +132,7 @@ def main():
                               'client_version': __version__
                           },
                           timeout=10)
-        
+
         logger.debug("Server response content: %s", r.text)
         logger.debug("Server response status code: %d", r.status_code)
         if r.status_code == 200:
