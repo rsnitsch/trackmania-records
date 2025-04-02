@@ -45,6 +45,19 @@
 		foreach ($records as $record) {
 			//print_r($record);
 
+            if (!isset($record['user'])) {
+                http_response_code(400);
+                die("No user key in record");
+            }
+            if (!isset($record['trackSet'])) {
+                http_response_code(400);
+                die("No trackSet key in record");
+            }
+            if (!isset($record['best'])) {
+                http_response_code(400);
+                die("No best key in record");
+            }
+
 			$user = $record['user'];
 			$trackSet = substr($record['trackSet'], 0, strpos($record['trackSet'], ' - '));
 			$trackNumber = intval(substr($record['trackSet'], strpos($record['trackSet'], ' - ') + 3));
